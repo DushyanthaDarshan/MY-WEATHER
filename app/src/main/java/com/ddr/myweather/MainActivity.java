@@ -20,29 +20,45 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    String[] text_list = {"nm to mm", "mm to cm", "cm to m", "m to km", "cm to inches", "inches to feet", "km to miles"};
-    Integer[] icon_list = {R.drawable.pic_1, R.drawable.pic_2, R.drawable.pic_3, R.drawable.pic_4,
-            R.drawable.pic_1, R.drawable.pic_1, R.drawable.pic_2};
+//    String[] text_list = {"nm to mm", "mm to cm", "cm to m", "m to km", "cm to inches", "inches to feet", "km to miles"};
+//    Integer[] icon_list = {R.drawable.pic_1, R.drawable.pic_2, R.drawable.pic_3, R.drawable.pic_4,
+//            R.drawable.pic_1, R.drawable.pic_1, R.drawable.pic_2};
 
     Map<Integer, WeatherModel> weatherModelMap = new HashMap<>();
+    Map<String, Integer> weatherIconMap = new HashMap<>();
+    List<String> daysList = new ArrayList<>();
+    List<Integer> iconList = new ArrayList<>();
+    List<String> tempList = new ArrayList<>();
     String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+    Boolean isBackgroundFinished = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        weatherIconMap.put("Thunderstorm", R.drawable.thunderstorm);
+        weatherIconMap.put("Clouds", R.drawable.clouds);
+        weatherIconMap.put("Clear", R.drawable.sunny);
+        weatherIconMap.put("Snow", R.drawable.snow);
+        weatherIconMap.put("Rain", R.drawable.rain);
+        weatherIconMap.put("Drizzle", R.drawable.drizzle);
 
         FetchData fetchData = new FetchData();
         fetchData.execute();
+    }
 
-        CustomListAdapter adapter = new CustomListAdapter(this, text_list, icon_list);
+    private void executeListView() {
+        CustomListAdapter adapter = new CustomListAdapter(this, daysList, iconList, tempList);
         ListView listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(adapter);
     }
@@ -59,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
             progress.setTitle("Loading");
             progress.setMessage("Wait while loading...");
-            progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            progress.setCancelable(false);
             progress.show();
         }
 
@@ -83,28 +99,34 @@ public class MainActivity extends AppCompatActivity {
 
                     WeatherModel weatherModel = new WeatherModel();
 
-                    int dayNumber = date.getDay();
-                    weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
-                    weatherModel.setDate(date);
-                    weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
-                    weatherModel.setWindSpeed(weatherOfDay.getDouble("speed"));
-                    weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
-                    weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getDouble("day"));
+                    if (weatherOfDay != null) {
+                        int dayNumber = date.getDay();
+                        weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
+                        weatherModel.setDate(date);
+                        weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
+                        weatherModel.setWindSpeed(weatherOfDay.getDouble("speed"));
+                        weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
+                        weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getDouble("day"));
 
-                    JSONArray weatherArray = weatherOfDay.getJSONArray("weather");
-                    weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
-                    weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
-                    weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
+                        JSONArray weatherArray = weatherOfDay.getJSONArray("weather");
+                        weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
+                        weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
+                        weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
 
-                    if (i == 0) {
-                        dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
-//                        currentIconView.setImageResource();
-                        tempForCurrentBock.setText(weatherModel.getTemperature().toString());
-                        windSpeedCurrentBlock.setText(weatherModel.getWindSpeed().toString());
-                        humidityCurrentBlock.setText(weatherModel.getHumidity().toString());
+                        if (i == 0) {
+                            dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
+                            currentIconView.setImageResource(weatherIconMap.get(weatherModel.getWeatherType()));
+                            tempForCurrentBock.setText(weatherModel.getTemperature().toString());
+                            windSpeedCurrentBlock.setText(weatherModel.getWindSpeed().toString());
+                            humidityCurrentBlock.setText(weatherModel.getHumidity().toString());
+                        }
+
+                        weatherModelMap.put(i+1, weatherModel);
+
+                        daysList.add(daysOfWeek[dayNumber]);
+                        iconList.add(weatherIconMap.get(weatherModel.getWeatherType()));
+                        tempList.add(weatherModel.getTemperature().toString());
                     }
-
-                    weatherModelMap.put(i+1, weatherModel);
                 }
 
 //                txtDataTemp.setText(main.getString("temp"));
@@ -116,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            executeListView();
             progress.dismiss();
         }
 

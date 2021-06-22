@@ -8,29 +8,35 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class CustomListAdapter extends ArrayAdapter<String> {
 
     private final Activity context;
-    private final String[] itemName;
-    private final Integer[] imgId;
+    private final List<String> dayList;
+    private final List<Integer> iconList;
+    private final List<String> tempList;
 
-    public CustomListAdapter(Activity context, String[] itemName, Integer[] imgId) {
-        super(context, R.layout.my_list, itemName);
+    public CustomListAdapter(Activity context, List<String> days, List<Integer> icons, List<String> temps) {
+        super(context, R.layout.my_list, days);
 
         this.context = context;
-        this.itemName = itemName;
-        this.imgId = imgId;
+        this.dayList = days;
+        this.iconList = icons;
+        this.tempList = temps;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
 
         View rowView = inflater.inflate(R.layout.my_list, null, true);
-//        TextView textView = (TextView) rowView.findViewById(R.id.itemName);
+        TextView dayOfWeek = (TextView) rowView.findViewById(R.id.dayOfWeek);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.iconView);
+        TextView weatherType = (TextView) rowView.findViewById(R.id.weatherType);
 
-//        textView.setText(itemName[position]);
-        imageView.setImageResource(imgId[position]);
+        dayOfWeek.setText(dayList.get(position));
+        imageView.setImageResource(iconList.get(position));
+        weatherType.setText(tempList.get(position));
         return rowView;
     }
 }
