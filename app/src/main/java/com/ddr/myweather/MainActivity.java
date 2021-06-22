@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,12 +20,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     String[] text_list = {"nm to mm", "mm to cm", "cm to m", "m to km", "cm to inches", "inches to feet", "km to miles"};
     Integer[] icon_list = {R.drawable.pic_1, R.drawable.pic_2, R.drawable.pic_3, R.drawable.pic_4,
             R.drawable.pic_1, R.drawable.pic_1, R.drawable.pic_2};
+
+    Map<Integer, WeatherModel> weatherModelMap = new HashMap<>();
+    String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,19 +68,51 @@ public class MainActivity extends AppCompatActivity {
 //            TextView txtData = (TextView) findViewById(R.id.txtTitle);
 //            txtData.setText(forecastJsonStr);
 
-            TextView txtDataTemp = (TextView) findViewById(R.id.txtTemp);
-            TextView txtDataDescription = (TextView) findViewById(R.id.txtDescription);
-            TextView txtDataFeelsLike = (TextView) findViewById(R.id.txtFeelsLike);
+            TextView dateForCurrentBlock = (TextView) findViewById(R.id.dateForCurrentBock);
+            ImageView currentIconView = (ImageView) findViewById(R.id.currentIconView);
+            TextView tempForCurrentBock = (TextView) findViewById(R.id.tempForCurrentBock);
+            TextView windSpeedCurrentBlock = (TextView) findViewById(R.id.windSpeedCurrentBlock);
+            TextView humidityCurrentBlock = (TextView) findViewById(R.id.humidityCurrentBlock);
 
             try {
                 JSONObject fullObject = new JSONObject(forecastJsonStr);
-                JSONObject main = fullObject.getJSONObject("main");
-                txtDataTemp.setText(main.getString("temp"));
-                txtDataFeelsLike.setText(main.getString("feels_like"));
+                JSONArray mainArray = fullObject.getJSONArray("list");
+                for (int i = 0; i < mainArray.length(); i++) {
+                    JSONObject weatherOfDay = mainArray.getJSONObject(i);
+                    Date date = new Date((long) weatherOfDay.getInt("dt")*1000);
 
-                JSONArray weatherArray = fullObject.getJSONArray("weather");
-                JSONObject weather_obj = weatherArray.getJSONObject(0);
-                txtDataDescription.setText(weather_obj.getString("description"));
+                    WeatherModel weatherModel = new WeatherModel();
+
+                    int dayNumber = date.getDay();
+                    weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
+                    weatherModel.setDate(date);
+                    weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
+                    weatherModel.setWindSpeed(weatherOfDay.getDouble("speed"));
+                    weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
+                    weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getDouble("day"));
+
+                    JSONArray weatherArray = weatherOfDay.getJSONArray("weather");
+                    weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
+                    weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
+                    weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
+
+                    if (i == 0) {
+                        dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
+//                        currentIconView.setImageResource();
+                        tempForCurrentBock.setText(weatherModel.getTemperature().toString());
+                        windSpeedCurrentBlock.setText(weatherModel.getWindSpeed().toString());
+                        humidityCurrentBlock.setText(weatherModel.getHumidity().toString());
+                    }
+
+                    weatherModelMap.put(i+1, weatherModel);
+                }
+
+//                txtDataTemp.setText(main.getString("temp"));
+//                txtDataFeelsLike.setText(main.getString("feels_like"));
+//
+//                JSONArray weatherArray = fullObject.getJSONArray("weather");
+//                JSONObject weather_obj = weatherArray.getJSONObject(0);
+//                txtDataDescription.setText(weather_obj.getString("description"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -87,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader reader = null;
 
             try {
-                final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?q=piliyandala&appid=32508302e351a0acecbe33ef6efeb52a";
+                final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=colombo&cnt=7&appid=a18b978603316d47c572d98d52a420f6";
+//                final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?q=piliyandala&appid=32508302e351a0acecbe33ef6efeb52a";
                 URL url = new URL(BASE_URL);
 
                 urlConnection = (HttpURLConnection) url.openConnection();
