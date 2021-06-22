@@ -3,12 +3,16 @@ package com.ddr.myweather;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +65,17 @@ public class MainActivity extends AppCompatActivity {
         CustomListAdapter adapter = new CustomListAdapter(this, daysList, iconList, tempList);
         ListView listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                String selectedItem = text_list[+position];
+//                Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_LONG).show();
+                Intent openSecondActivity = new Intent(MainActivity.this, MainActivity2.class);
+                openSecondActivity.putExtra("weatherObject", weatherModelMap.get(+position));
+                startActivity(openSecondActivity);
+            }
+        });
     }
 
     public class FetchData extends AsyncTask<String, Void, String> {
