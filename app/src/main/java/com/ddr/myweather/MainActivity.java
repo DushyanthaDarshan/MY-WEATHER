@@ -2,11 +2,14 @@ package com.ddr.myweather;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -54,7 +57,15 @@ public class MainActivity extends AppCompatActivity {
         weatherIconMap.put("Drizzle", R.drawable.drizzle);
 
         FetchData fetchData = new FetchData();
-        fetchData.execute();
+        String city = null;
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            city = bundle.getString("cityName");
+            fetchData.execute(city);
+        } else {
+            fetchData.execute();
+        }
+
     }
 
     private void executeListView() {
@@ -91,10 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-//            TextView txtData = (TextView) findViewById(R.id.txtTitle);
-//            txtData.setText(forecastJsonStr);
-
             TextView dateForCurrentBlock = (TextView) findViewById(R.id.dateForCurrentBock);
+            TextView weatherPlace = (TextView) findViewById(R.id.weatherPlace);
             ImageView currentIconView = (ImageView) findViewById(R.id.currentIconView);
             TextView tempForCurrentBock = (TextView) findViewById(R.id.tempForCurrentBock);
             TextView windSpeedCurrentBlock = (TextView) findViewById(R.id.windSpeedCurrentBlock);
@@ -135,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                             dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
                             currentIconView.setImageResource(weatherIconMap.get(weatherModel.getWeatherType()));
                             tempForCurrentBock.setText(weatherModel.getTemperature().toString());
+                            weatherPlace.setText(weatherModel.getCityName().toUpperCase());
                             windSpeedCurrentBlock.setText(weatherModel.getWindSpeed().toString());
                             humidityCurrentBlock.setText(weatherModel.getHumidity().toString());
                         }
@@ -146,13 +156,6 @@ public class MainActivity extends AppCompatActivity {
                         tempList.add(weatherModel.getTemperature().toString());
                     }
                 }
-
-//                txtDataTemp.setText(main.getString("temp"));
-//                txtDataFeelsLike.setText(main.getString("feels_like"));
-//
-//                JSONArray weatherArray = fullObject.getJSONArray("weather");
-//                JSONObject weather_obj = weatherArray.getJSONObject(0);
-//                txtDataDescription.setText(weather_obj.getString("description"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -161,13 +164,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected String doInBackground(String... stringsArray) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
+            String city;
+
+            if (stringsArray.length == 0 || stringsArray[0] == null) {
+                city = "piliyandala";
+            } else {
+                city = stringsArray[0];
+            }
 
             try {
-                final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=colombo&cnt=7&appid=a18b978603316d47c572d98d52a420f6";
+                final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&cnt=7&appid=a18b978603316d47c572d98d52a420f6";
 //                final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?q=piliyandala&appid=32508302e351a0acecbe33ef6efeb52a";
                 URL url = new URL(BASE_URL);
 
@@ -210,5 +220,22 @@ public class MainActivity extends AppCompatActivity {
             }
             return forecastJsonStr;
         }
+    }
+
+    @SuppressLint("ResourceType")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.layout.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.settings){
+            Intent openSettingsActivity = new Intent(MainActivity.this, MainActivity3.class);
+            startActivity(openSettingsActivity);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

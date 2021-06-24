@@ -32,8 +32,8 @@ public class MainActivity2 extends AppCompatActivity {
             secondBlockLocation.setText(location);
             secondBlockIcon.setImageResource(weatherModel.getIconNumber());
             secondBlockTemp.setText(weatherModel.getTemperature().toString());
-            secondBlockDescription.setText(weatherModel.getWeatherDescription());
-            secondBlockHumidity.setText(weatherModel.getHumidity().toString());
+            secondBlockDescription.setText(weatherModel.getWeatherDescription().toUpperCase());
+            secondBlockHumidity.setText("Humidity: " + weatherModel.getHumidity().toString() + "%");
         }
     }
 }
