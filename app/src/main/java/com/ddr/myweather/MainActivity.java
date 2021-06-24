@@ -32,10 +32,6 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-//    String[] text_list = {"nm to mm", "mm to cm", "cm to m", "m to km", "cm to inches", "inches to feet", "km to miles"};
-//    Integer[] icon_list = {R.drawable.pic_1, R.drawable.pic_2, R.drawable.pic_3, R.drawable.pic_4,
-//            R.drawable.pic_1, R.drawable.pic_1, R.drawable.pic_2};
-
     Map<Integer, WeatherModel> weatherModelMap = new HashMap<>();
     Map<String, Integer> weatherIconMap = new HashMap<>();
     List<String> daysList = new ArrayList<>();
@@ -69,10 +65,9 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String selectedItem = text_list[+position];
-//                Toast.makeText(getApplicationContext(), selectedItem, Toast.LENGTH_LONG).show();
                 Intent openSecondActivity = new Intent(MainActivity.this, MainActivity2.class);
-                openSecondActivity.putExtra("weatherObject", weatherModelMap.get(+position));
+                WeatherModel weatherModel = weatherModelMap.get(position+1);
+                openSecondActivity.putExtra("weatherObject", weatherModel);
                 startActivity(openSecondActivity);
             }
         });
@@ -107,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JSONObject fullObject = new JSONObject(forecastJsonStr);
+                JSONObject cityObject = fullObject.getJSONObject("city");
                 JSONArray mainArray = fullObject.getJSONArray("list");
                 for (int i = 0; i < mainArray.length(); i++) {
                     JSONObject weatherOfDay = mainArray.getJSONObject(i);
@@ -118,6 +114,12 @@ public class MainActivity extends AppCompatActivity {
                         int dayNumber = date.getDay();
                         weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
                         weatherModel.setDate(date);
+                        weatherModel.setCityName(cityObject.getString("name"));
+                        weatherModel.setCountry(cityObject.getString("country"));
+                        weatherModel.setPopulation(cityObject.getInt("population"));
+                        weatherModel.setTimezone(cityObject.getInt("timezone"));
+                        weatherModel.setLon(cityObject.getJSONObject("coord").getDouble("lon"));
+                        weatherModel.setLat(cityObject.getJSONObject("coord").getDouble("lat"));
                         weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
                         weatherModel.setWindSpeed(weatherOfDay.getDouble("speed"));
                         weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
@@ -127,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
                         weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
                         weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
+                        weatherModel.setIconNumber(weatherIconMap.get(weatherModel.getWeatherType()));
 
                         if (i == 0) {
                             dateForCurrentBlock.setText(weatherModel.getDayOfWeek());

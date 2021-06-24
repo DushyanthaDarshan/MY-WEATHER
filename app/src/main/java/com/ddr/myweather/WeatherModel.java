@@ -14,6 +14,13 @@ public class WeatherModel implements Serializable {
     private String weatherDescription;
     private String iconId;
     private Double rainVolume;
+    private String cityName;
+    private String country;
+    private Integer population;
+    private Integer timezone;
+    private Double lon;
+    private Double lat;
+    private Integer iconNumber;
 
     public String getDayOfWeek() {
         return dayOfWeek;
@@ -87,9 +94,65 @@ public class WeatherModel implements Serializable {
         this.rainVolume = rainVolume;
     }
 
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public Integer getPopulation() {
+        return population;
+    }
+
+    public void setPopulation(Integer population) {
+        this.population = population;
+    }
+
+    public Integer getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(Integer timezone) {
+        this.timezone = timezone;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Integer getIconNumber() {
+        return iconNumber;
+    }
+
+    public void setIconNumber(Integer iconNumber) {
+        this.iconNumber = iconNumber;
+    }
+
     @Override
     public String toString() {
-        return "Model{" +
+        return "WeatherModel{" +
                 "dayOfWeek='" + dayOfWeek + '\'' +
                 ", date=" + date +
                 ", temperature=" + temperature +
@@ -99,6 +162,13 @@ public class WeatherModel implements Serializable {
                 ", weatherDescription='" + weatherDescription + '\'' +
                 ", iconId='" + iconId + '\'' +
                 ", rainVolume=" + rainVolume +
+                ", cityName='" + cityName + '\'' +
+                ", country='" + country + '\'' +
+                ", population=" + population +
+                ", timezone=" + timezone +
+                ", lon=" + lon +
+                ", lat=" + lat +
+                ", iconNumber=" + iconNumber +
                 '}';
     }
 }
