@@ -7,9 +7,9 @@ public class WeatherModel implements Serializable {
 
     private String dayOfWeek;
     private Date date;
-    private Double temperature;
+    private String temperature;
     private Double humidity;
-    private Double windSpeed;
+    private String windSpeed;
     private String weatherType;
     private String weatherDescription;
     private String iconId;
@@ -38,11 +38,11 @@ public class WeatherModel implements Serializable {
         this.date = date;
     }
 
-    public Double getTemperature() {
+    public String getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(Double temperature) {
+    public void setTemperature(String temperature) {
         this.temperature = temperature;
     }
 
@@ -54,11 +54,11 @@ public class WeatherModel implements Serializable {
         this.humidity = humidity;
     }
 
-    public Double getWindSpeed() {
+    public String getWindSpeed() {
         return windSpeed;
     }
 
-    public void setWindSpeed(Double windSpeed) {
+    public void setWindSpeed(String windSpeed) {
         this.windSpeed = windSpeed;
     }
 
