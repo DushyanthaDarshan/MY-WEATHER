@@ -67,8 +67,15 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            city = bundle.getString("cityName");
+            String cityFromSelectCity = bundle.getString("cityName");
             isFahrenheit = bundle.getString("isFahrenheit");
+            String cityFromMainUnits = bundle.getString("cityFromTempConvert");
+
+            if (cityFromSelectCity != null) {
+                city = cityFromSelectCity;
+            } else if (cityFromMainUnits != null) {
+                city = cityFromMainUnits;
+            }
         }
         fetchData.execute(city, isFahrenheit);
     }
@@ -298,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if(id == R.id.settings){
             Intent openSettingsActivity = new Intent(MainActivity.this, MainActivity3.class);
+            openSettingsActivity.putExtra("cityName", city);
             startActivity(openSettingsActivity);
         }
         if(id == R.id.about){

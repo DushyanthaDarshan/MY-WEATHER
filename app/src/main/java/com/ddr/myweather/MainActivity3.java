@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 public class MainActivity3 extends AppCompatActivity {
 
+    String cityNameFromMain = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +77,7 @@ public class MainActivity3 extends AppCompatActivity {
         RadioButton celsiusButton = (RadioButton) temperatureLayout.findViewById(R.id.radioButtonCelsius);
         RadioButton fahrenheitButton = (RadioButton) temperatureLayout.findViewById(R.id.radioButtonFahrenheit);
 
+        cityNameFromMain = getIntent().getStringExtra("cityName");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Temperature Unit");
@@ -99,11 +102,13 @@ public class MainActivity3 extends AppCompatActivity {
             case R.id.radioButtonCelsius:
                 if (checked)
                     openFirstActivity.putExtra("isFahrenheit", "No");
+                    openFirstActivity.putExtra("cityFromTempConvert", cityNameFromMain);
                     startActivity(openFirstActivity);
                 break;
             case R.id.radioButtonFahrenheit:
                 if (checked)
                     openFirstActivity.putExtra("isFahrenheit", "Yes");
+                    openFirstActivity.putExtra("cityFromTempConvert", cityNameFromMain);
                     startActivity(openFirstActivity);
                 break;
         }
