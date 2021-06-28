@@ -3,7 +3,10 @@ package com.ddr.myweather;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -85,6 +88,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void alertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        builder.setMessage("No data found for the provided city related");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                Activity activity = null;
+                activity.finish();
+                Intent openFirstActivity = getIntent();
+                startActivity(openFirstActivity);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 //    public String convertKelvinToCelsius(String temperature) {
 //        List<String> splitArray = Arrays.asList(temperature.split(" "));
 //        if (splitArray.size() == 2) {
@@ -134,56 +156,60 @@ public class MainActivity extends AppCompatActivity {
             TextView humidityCurrentBlock = (TextView) findViewById(R.id.humidityCurrentBlock);
 
             try {
-                JSONObject fullObject = new JSONObject(forecastJsonStr);
-                JSONObject cityObject = fullObject.getJSONObject("city");
-                JSONArray mainArray = fullObject.getJSONArray("list");
-                for (int i = 0; i < mainArray.length(); i++) {
-                    JSONObject weatherOfDay = mainArray.getJSONObject(i);
-                    Date date = new Date((long) weatherOfDay.getInt("dt")*1000);
+                if (forecastJsonStr != null) {
+                    JSONObject fullObject = new JSONObject(forecastJsonStr);
+                    JSONObject cityObject = fullObject.getJSONObject("city");
+                    JSONArray mainArray = fullObject.getJSONArray("list");
+                    for (int i = 0; i < mainArray.length(); i++) {
+                        JSONObject weatherOfDay = mainArray.getJSONObject(i);
+                        Date date = new Date((long) weatherOfDay.getInt("dt")*1000);
 
-                    WeatherModel weatherModel = new WeatherModel();
+                        WeatherModel weatherModel = new WeatherModel();
 
-                    if (weatherOfDay != null) {
-                        int dayNumber = date.getDay();
-                        weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
-                        weatherModel.setDate(date);
-                        weatherModel.setCityName(cityObject.getString("name"));
-                        weatherModel.setCountry(cityObject.getString("country"));
-                        weatherModel.setPopulation(cityObject.getInt("population"));
-                        weatherModel.setTimezone(cityObject.getInt("timezone"));
-                        weatherModel.setLon(cityObject.getJSONObject("coord").getDouble("lon"));
-                        weatherModel.setLat(cityObject.getJSONObject("coord").getDouble("lat"));
-                        weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
-                        weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
+                        if (weatherOfDay != null) {
+                            int dayNumber = date.getDay();
+                            weatherModel.setDayOfWeek(daysOfWeek[dayNumber]);
+                            weatherModel.setDate(date);
+                            weatherModel.setCityName(cityObject.getString("name"));
+                            weatherModel.setCountry(cityObject.getString("country"));
+                            weatherModel.setPopulation(cityObject.getInt("population"));
+                            weatherModel.setTimezone(cityObject.getInt("timezone"));
+                            weatherModel.setLon(cityObject.getJSONObject("coord").getDouble("lon"));
+                            weatherModel.setLat(cityObject.getJSONObject("coord").getDouble("lat"));
+                            weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
+                            weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
 
-                        if (isFahrenheit.equals("Imperial")) {
-                            weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getString("day") + " ℉");
-                            weatherModel.setWindSpeed(weatherOfDay.getString("speed") + " mi/h");
-                        } else {
-                            weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getString("day") + " ℃");
-                            weatherModel.setWindSpeed(weatherOfDay.getString("speed") + " m/s");
+                            if (isFahrenheit.equals("Imperial")) {
+                                weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getString("day") + " ℉");
+                                weatherModel.setWindSpeed(weatherOfDay.getString("speed") + " mi/h");
+                            } else {
+                                weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getString("day") + " ℃");
+                                weatherModel.setWindSpeed(weatherOfDay.getString("speed") + " m/s");
+                            }
+
+                            JSONArray weatherArray = weatherOfDay.getJSONArray("weather");
+                            weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
+                            weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
+                            weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
+                            weatherModel.setIconNumber(weatherIconMap.get(weatherModel.getWeatherType()));
+
+                            if (i == 0) {
+                                dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
+                                currentIconView.setImageResource(weatherIconMap.get(weatherModel.getWeatherType()));
+                                tempForCurrentBock.setText(weatherModel.getTemperature());
+                                weatherPlace.setText(weatherModel.getCityName().toUpperCase());
+                                windSpeedCurrentBlock.setText(weatherModel.getWindSpeed());
+                                humidityCurrentBlock.setText(weatherModel.getHumidity().toString() + "%");
+                            }
+                            weatherModelMap.put(i+1, weatherModel);
+
+                            daysList.add(daysOfWeek[dayNumber]);
+                            iconList.add(weatherIconMap.get(weatherModel.getWeatherType()));
+                            tempList.add(weatherModel.getTemperature());
                         }
-
-                        JSONArray weatherArray = weatherOfDay.getJSONArray("weather");
-                        weatherModel.setWeatherType(weatherArray.getJSONObject(0).getString("main"));
-                        weatherModel.setWeatherDescription(weatherArray.getJSONObject(0).getString("description"));
-                        weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
-                        weatherModel.setIconNumber(weatherIconMap.get(weatherModel.getWeatherType()));
-
-                        if (i == 0) {
-                            dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
-                            currentIconView.setImageResource(weatherIconMap.get(weatherModel.getWeatherType()));
-                            tempForCurrentBock.setText(weatherModel.getTemperature());
-                            weatherPlace.setText(weatherModel.getCityName().toUpperCase());
-                            windSpeedCurrentBlock.setText(weatherModel.getWindSpeed());
-                            humidityCurrentBlock.setText(weatherModel.getHumidity().toString() + "%");
-                        }
-                        weatherModelMap.put(i+1, weatherModel);
-
-                        daysList.add(daysOfWeek[dayNumber]);
-                        iconList.add(weatherIconMap.get(weatherModel.getWeatherType()));
-                        tempList.add(weatherModel.getTemperature());
                     }
+                } else {
+                    alertDialog();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

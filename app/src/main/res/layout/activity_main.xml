@@ -40,7 +40,7 @@
                 android:id="@+id/weatherPlace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PILIYANDALA"
+                android:text=""
                 android:textSize="35sp"
                 android:textColor="@color/white"
                 android:textStyle="bold"
@@ -62,7 +62,7 @@
                 android:gravity="center_horizontal"
                 android:layout_gravity="center_vertical"
                 android:paddingStart="5dp"
-                android:text="Current Weather"
+                android:text="Today"
                 android:textAlignment="center"
                 android:textSize="25sp"
                 android:textStyle="bold"
@@ -75,7 +75,7 @@
                 android:gravity="right"
                 android:layout_gravity="center_vertical"
                 android:paddingStart="20dp"
-                android:text="22nd June"
+                android:text=""
                 android:textSize="25sp"
                 android:textStyle="bold"
                 tools:ignore="RtlSymmetry" />
@@ -99,8 +99,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="1dp"
-                    android:layout_gravity="left"
-                    android:src="@drawable/sunny"/>
+                    android:layout_gravity="left" />
 
             </LinearLayout>
 
@@ -119,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="27 C"
+                    android:text=""
                     android:textSize="35sp"
                     android:textStyle="bold"
                     tools:ignore="RtlSymmetry" />
@@ -161,7 +160,7 @@
                         android:id="@+id/windSpeedCurrentBlock"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="15 km/h"
+                        android:text=""
                         android:layout_gravity="center_vertical"/>
 
                 </LinearLayout>
@@ -196,7 +195,7 @@
                         android:id="@+id/humidityCurrentBlock"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="77%"
+                        android:text=""
                         android:layout_gravity="center_vertical"/>
 
                 </LinearLayout>
