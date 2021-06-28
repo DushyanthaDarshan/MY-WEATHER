@@ -1,6 +1,7 @@
 package com.ddr.myweather;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,10 @@ public class CustomListAdapter extends ArrayAdapter<String> {
 
     private final Activity context;
     private final List<String> dayList;
-    private final List<Integer> iconList;
+    private final List<Bitmap> iconList;
     private final List<String> tempList;
 
-    public CustomListAdapter(Activity context, List<String> days, List<Integer> icons, List<String> temps) {
+    public CustomListAdapter(Activity context, List<String> days, List<Bitmap> icons, List<String> temps) {
         super(context, R.layout.my_list, days);
 
         this.context = context;
@@ -35,7 +36,7 @@ public class CustomListAdapter extends ArrayAdapter<String> {
         TextView weatherType = (TextView) rowView.findViewById(R.id.weatherType);
 
         dayOfWeek.setText(dayList.get(position));
-        imageView.setImageResource(iconList.get(position));
+        imageView.setImageBitmap(iconList.get(position));
         weatherType.setText(tempList.get(position));
         return rowView;
     }

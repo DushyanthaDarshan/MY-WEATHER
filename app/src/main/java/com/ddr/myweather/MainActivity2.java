@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +21,9 @@ public class MainActivity2 extends AppCompatActivity {
 
         WeatherModel weatherModel = (WeatherModel) getIntent().getSerializableExtra("weatherObject");
 
+        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        Bitmap bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
         TextView secondBlockDate = (TextView) findViewById(R.id.secondBlockDate);
         TextView secondBlockLocation = (TextView) findViewById(R.id.secondBlockLocation);
         ImageView secondBlockIcon = (ImageView) findViewById(R.id.secondBlockIcon);
@@ -30,7 +35,7 @@ public class MainActivity2 extends AppCompatActivity {
             secondBlockDate.setText(weatherModel.getDayOfWeek());
             String location = weatherModel.getCityName() + ", " + weatherModel.getCountry();
             secondBlockLocation.setText(location);
-            secondBlockIcon.setImageResource(weatherModel.getIconNumber());
+            secondBlockIcon.setImageBitmap(bmp);
             secondBlockTemp.setText(weatherModel.getTemperature().toString());
             secondBlockDescription.setText(weatherModel.getWeatherDescription().toUpperCase());
             secondBlockHumidity.setText("Humidity: " + weatherModel.getHumidity().toString() + "%");

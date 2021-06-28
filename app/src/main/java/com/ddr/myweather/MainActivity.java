@@ -8,6 +8,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,26 +20,24 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     Map<String, Integer> weatherIconMap = new HashMap<>();
     List<String> daysList = new ArrayList<>();
     List<Integer> iconList = new ArrayList<>();
+    List<Bitmap> bitmapIconList = new ArrayList<>();
     List<String> tempList = new ArrayList<>();
     String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeListView() {
-        CustomListAdapter adapter = new CustomListAdapter(this, daysList, iconList, tempList);
+        CustomListAdapter adapter = new CustomListAdapter(this, daysList, bitmapIconList, tempList);
         ListView listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(adapter);
 
@@ -83,6 +84,13 @@ public class MainActivity extends AppCompatActivity {
                 Intent openSecondActivity = new Intent(MainActivity.this, MainActivity2.class);
                 WeatherModel weatherModel = weatherModelMap.get(position+1);
                 openSecondActivity.putExtra("weatherObject", weatherModel);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Bitmap bmp = bitmapIconList.get(position);
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                openSecondActivity.putExtra("image",byteArray);
+
                 startActivity(openSecondActivity);
             }
         });
@@ -106,28 +114,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-//    public String convertKelvinToCelsius(String temperature) {
-//        List<String> splitArray = Arrays.asList(temperature.split(" "));
-//        if (splitArray.size() == 2) {
-//            temperature = splitArray.get(0);
-//        }
-//        double temp = Double.parseDouble(temperature);
-//        double celsius = (temp - 273.15);
-//        BigDecimal bd = new BigDecimal(celsius).setScale(2, RoundingMode.HALF_UP);
-//        return bd.toString() + " ℃";
-//    }
-
-//    public String convertKelvinToFahrenheit(String temperature) {
-//        List<String> splitArray = Arrays.asList(temperature.split(" "));
-//        if (splitArray.size() == 2) {
-//            temperature = splitArray.get(0);
-//        }
-//        double temp = Double.parseDouble(temperature);
-//        double fahrenheit = ((temp - 273.15)*(9/5)) + 32;
-//        BigDecimal bd = new BigDecimal(fahrenheit).setScale(2, RoundingMode.HALF_UP);
-//        return bd.toString() + " ℉";
-//    }
 
     public class FetchData extends AsyncTask<String, Void, String> {
 
@@ -193,9 +179,12 @@ public class MainActivity extends AppCompatActivity {
                             weatherModel.setIconId(weatherArray.getJSONObject(0).getString("icon"));
                             weatherModel.setIconNumber(weatherIconMap.get(weatherModel.getWeatherType()));
 
+                            FetchIcons fetchIcons = new FetchIcons();
+                            Bitmap bitmap = fetchIcons.execute(weatherModel.getIconId()).get();
+
                             if (i == 0) {
                                 dateForCurrentBlock.setText(weatherModel.getDayOfWeek());
-                                currentIconView.setImageResource(weatherIconMap.get(weatherModel.getWeatherType()));
+                                currentIconView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 500, 500, true));
                                 tempForCurrentBock.setText(weatherModel.getTemperature());
                                 weatherPlace.setText(weatherModel.getCityName().toUpperCase());
                                 windSpeedCurrentBlock.setText(weatherModel.getWindSpeed());
@@ -205,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
                             daysList.add(daysOfWeek[dayNumber]);
                             iconList.add(weatherIconMap.get(weatherModel.getWeatherType()));
+                            bitmapIconList.add(Bitmap.createScaledBitmap(bitmap, 500, 500, true));
                             tempList.add(weatherModel.getTemperature());
                         }
                     }
@@ -212,6 +202,10 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog();
                 }
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
                 e.printStackTrace();
             }
             executeListView();
@@ -242,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&cnt=7&appid=a18b978603316d47c572d98d52a420f6&units=" + unit;
-//                final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?q=piliyandala&appid=32508302e351a0acecbe33ef6efeb52a";
                 URL url = new URL(BASE_URL);
 
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -303,22 +296,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    public void changeTemperatureUnits(Boolean isFahrenheit, TextView textView) {
-//        for (int i = 1; i < 8; i++) {
-//            String convertedTemperature = null;
-//            WeatherModel weatherModel = weatherModelMap.get(i);
-//            if (weatherModel != null) {
-//                if (isFahrenheit) {
-//                    convertedTemperature = convertKelvinToFahrenheit(weatherModel.getTemperature());
-//                } else {
-//                    convertedTemperature = convertKelvinToCelsius(weatherModel.getTemperature());
-//                }
-//                weatherModel.setTemperature(convertedTemperature);
-//                if (i == 1) {
-//                    textView.setText(convertedTemperature);
-//                }
-//                tempList.set(i - 1, weatherModel.getTemperature());
-//            }
-//        }
-//    }
+    public class FetchIcons extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+
+            Bitmap image = null;
+            try {
+                String iconId = null;
+                if (strings.length != 0) {
+                    iconId = strings[0];
+                }
+                String baseUrl = "https://openweathermap.org/img/wn/" + iconId +"@2x.png";
+                URL url = new URL(baseUrl);
+                image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            } catch(IOException e) {
+                System.out.println(e);
+            }
+            return image;
+        }
+    }
 }
