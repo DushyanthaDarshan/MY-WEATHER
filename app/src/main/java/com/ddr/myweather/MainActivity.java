@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     List<Bitmap> bitmapIconList = new ArrayList<>();
     List<String> tempList = new ArrayList<>();
     String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    String city = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         weatherIconMap.put("Drizzle", R.drawable.drizzle);
 
         FetchData fetchData = new FetchData();
-        String city = null;
         String isFahrenheit = null;
 
         Bundle bundle = getIntent().getExtras();
@@ -217,13 +217,14 @@ public class MainActivity extends AppCompatActivity {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            String city;
             String unit;
 
-            if (stringsArray.length == 0 || stringsArray[0] == null) {
-                city = "piliyandala";
-            } else {
-                city = stringsArray[0];
+            if (city == null) {
+                if (stringsArray.length == 0 || stringsArray[0] == null) {
+                    city = "piliyandala";
+                } else {
+                    city = stringsArray[0];
+                }
             }
 
             if (stringsArray.length == 0 || stringsArray[1] == null || stringsArray[1].equals("No")) {
@@ -279,6 +280,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * The method to three vertical menu
+     *
+     * @param menu
+     * @return
+     */
     @SuppressLint("ResourceType")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -292,6 +299,20 @@ public class MainActivity extends AppCompatActivity {
         if(id == R.id.settings){
             Intent openSettingsActivity = new Intent(MainActivity.this, MainActivity3.class);
             startActivity(openSettingsActivity);
+        }
+        if(id == R.id.about){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("About");
+            builder.setMessage("This application provide data about weather for 7 days");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
         return super.onOptionsItemSelected(item);
     }
