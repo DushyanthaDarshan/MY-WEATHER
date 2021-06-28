@@ -316,4 +316,24 @@ public class MainActivity extends AppCompatActivity {
             return image;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle("Exit");
+        dialog.setMessage("Do you want to exit from the app? ");
+        dialog.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        dialog.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();
+                System.exit(0);
+            }
+        });
+        dialog.show();
+    }
 }
