@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                             weatherModel.setLon(cityObject.getJSONObject("coord").getDouble("lon"));
                             weatherModel.setLat(cityObject.getJSONObject("coord").getDouble("lat"));
                             weatherModel.setHumidity(weatherOfDay.getDouble("humidity"));
-                            weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
+//                            weatherModel.setRainVolume(weatherOfDay.getDouble("rain"));
 
                             if (isFahrenheit.equals("Imperial")) {
                                 weatherModel.setTemperature(weatherOfDay.getJSONObject("temp").getString("day") + " ℉");
